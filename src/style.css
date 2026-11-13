@@ -183,6 +183,11 @@ input[aria-invalid="true"]:focus,textarea[aria-invalid="true"]:focus{border-colo
 .launch-parameters>.parameter-fees{grid-column:1/-1;display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 16px;border-inline-start:0;border-block-start:1px solid var(--line);padding-block:12px}
 .launch-parameters .parameter-fees dd{margin:0;font-family:inherit;font-size:14px;font-weight:600;line-height:1.5;letter-spacing:normal;color:var(--muted)}
 .parameter-fees strong{color:var(--ink);font-weight:800}
+.topbar-actions{display:flex;align-items:center;justify-content:flex-end;gap:10px;flex-wrap:wrap}
+@media(max-width:600px){
+  .topbar:has(.topbar-actions>button+button){height:auto;min-height:63px;flex-wrap:wrap;gap:12px;padding-block:14px}
+  .topbar-actions{gap:8px}
+}
 @media(max-width:600px){
   .buyer-row{grid-template-columns:18px minmax(0,1fr) minmax(74px,30%)}
   .buyer-order{width:auto}

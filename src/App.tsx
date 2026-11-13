@@ -220,6 +220,22 @@ export default function App({privy}: {privy?: PrivyWallets}){
     finally { walletOperation.current=false; setWalletBusy(false); }
   }
 
+  function signOutOfPrivy(){
+    if(!privy?.authenticated||walletOperation.current||busy)return;
+    setView('wallets');
+    return runWalletOperation(async()=>{
+      await privy.logout();
+      setDev('');
+      setBuyers(Array(6).fill(''));
+      setWalletName('');
+      setLocalWallets([]);
+      setPassword('');
+      setReview(null);
+      mintReview.current=null;
+      if(privateKeyField.current)privateKeyField.current.value='';
+    });
+  }
+
   function unlockSavedWallets(event:FormEvent){
     event.preventDefault();
     if(!legacyVault) return;
@@ -374,7 +390,7 @@ export default function App({privy}: {privy?: PrivyWallets}){
         <span>Solana mainnet</span>
       </div>
     </aside>
-    <main><header className="topbar"><span className="breadcrumb">Workspace / <strong>{view==='launch'?'New launch':navigation.find(item=>item.id===view)?.label}</strong></span><button className="wallet-pill" onClick={()=>setView('wallets')}>{devAddress?short(devAddress):'Manage wallets'}</button></header>
+    <main><header className="topbar"><span className="breadcrumb">Workspace / <strong>{view==='launch'?'New launch':navigation.find(item=>item.id===view)?.label}</strong></span><div className="topbar-actions"><button className="wallet-pill" onClick={()=>setView('wallets')}>{devAddress?short(devAddress):'Manage wallets'}</button>{privy?.authenticated&&<button type="button" className="wallet-pill" disabled={busy||walletBusy} onClick={()=>void signOutOfPrivy()}>Sign out of Privy</button>}</div></header>
       <div className="workspace">
         <div className={view==='launch'?'page-heading launch-heading':view==='docs'?'page-heading docs-heading':'page-heading'}>
           <div>
@@ -539,17 +555,7 @@ export default function App({privy}: {privy?: PrivyWallets}){
           <section className="wallet-vault">
             <div className="section-heading">
               <h2>My wallets</h2>
-              {privy?.authenticated&&<button className="text-button" disabled={busy||walletBusy} onClick={()=>void runWalletOperation(async ()=>{
-                await privy.logout();
-                setDev('');
-                setBuyers(Array(6).fill(''));
-                setWalletName('');
-                setLocalWallets([]);
-                setPassword('');
-                setReview(null);
-                mintReview.current=null;
-                if(privateKeyField.current)privateKeyField.current.value='';
-              })}>Sign out</button>}
+              {privy?.authenticated&&<button className="text-button" disabled={busy||walletBusy} onClick={()=>void signOutOfPrivy()}>Sign out</button>}
             </div>
             {wallets?.length ? <div className="wallet-list">
               {wallets.map(wallet=><div className="wallet-list-row" key={wallet.id}>
