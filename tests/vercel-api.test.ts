@@ -2,6 +2,10 @@ import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {Readable} from 'node:stream';
 import {spawnSync} from 'node:child_process';
+import {mkdtempSync,mkdirSync,copyFileSync} from 'node:fs';
+import {tmpdir} from 'node:os';
+import {join} from 'node:path';
+import {pathToFileURL} from 'node:url';
 // @ts-expect-error Shared request policy is plain JavaScript.
 import {sameOrigin,readJsonBody} from '../server/request-policy.mjs';
 // @ts-expect-error Vercel entry point is plain JavaScript.
@@ -12,6 +16,16 @@ test('API cold start works in native Node without TypeScript loading',()=>{
     let status,body;await handler({method:'GET',url:'/api?__api=health',query:{__api:'health'},headers:{host:'127.0.0.1:5188'}},{writeHead(s){status=s},end(b){body=JSON.parse(b)}});
     if(status!==200||body.version!=='1.0.0')throw Error('API health failed');`;
   const result=spawnSync(process.execPath,['--no-experimental-strip-types','--input-type=module','-e',source],{cwd:new URL('..',import.meta.url),encoding:'utf8'});
+  assert.equal(result.status,0,result.stderr);
+});
+
+test('missing deployment files return a JSON startup error instead of crashing the function',()=>{
+  const directory=mkdtempSync(join(tmpdir(),'rapelaunch-cold-start-'));
+  mkdirSync(join(directory,'api'));copyFileSync(new URL('../api/index.mjs',import.meta.url),join(directory,'api/index.mjs'));
+  const source=`import handler from ${JSON.stringify(pathToFileURL(join(directory,'api/index.mjs')).href)};
+    let status,body;await handler({method:'GET',url:'/api/health',headers:{}},{writeHead(s){status=s},end(b){body=JSON.parse(b)}});
+    if(status!==503||body.code!=='API_STARTUP_FAILED'||!body.error.includes('ERR_MODULE_NOT_FOUND'))throw Error('Expected safe startup response');`;
+  const result=spawnSync(process.execPath,['--input-type=module','-e',source],{encoding:'utf8'});
   assert.equal(result.status,0,result.stderr);
 });
 

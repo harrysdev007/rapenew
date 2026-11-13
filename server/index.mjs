@@ -72,7 +72,7 @@ async function api(req,res,url){
     try{await walletArchive.verifyUser(req.headers.authorization);}
     catch(error){return respond(res,error instanceof WalletRequestError?error.status:401,{error:'Sign in to Privy before uploading artwork or metadata.'});}
   }
-  if(url.pathname==='/api/health'&&req.method==='GET')return respond(res,200,{rpcConfigured:!!process.env.SOLANA_RPC_URL,pinataConfigured:!!process.env.PINATA_JWT,walletArchiveConfigured:!!walletArchive,version:'1.0.0'});
+  if(url.pathname==='/api/health'&&req.method==='GET')return respond(res,200,{rpcConfigured:!!process.env.SOLANA_RPC_URL,pinataConfigured:!!process.env.PINATA_JWT,walletArchiveConfigured:!!walletArchive,version:'1.0.0',commit:process.env.VERCEL_GIT_COMMIT_SHA?.slice(0,7)||'local'});
   if(url.pathname==='/api/sol-price'&&req.method==='GET'){
     try{return respond(res,200,await getSolPrice());}
     catch{return respond(res,503,{error:'SOL/USD quote unavailable.'});}
