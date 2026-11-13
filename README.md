@@ -34,6 +34,8 @@ Set these environment variables in Vercel before deploying:
 
 Add the public origin to Privy's allowed origins. Vercel's deployment and production URLs are also accepted by the API; add a preview origin to Privy if testing login there. Never prefix server credentials with `VITE_` or commit `.env`. Changing the public Privy ID requires a rebuild. Production uploads require a verified Privy session. Artwork is limited to 3 MiB so its JSON/base64 request fits Vercel's function request limit.
 
+`rpc-websockets` is pinned to 9.3.8 because 9.3.9 requires the ESM-only `uuid` 14 from CommonJS. Vercel disables experimental `require(ESM)` by default. The API cold-start test runs with that feature disabled, and the pinned release supports this runtime without extra `NODE_OPTIONS` settings.
+
 ## Launch flow
 
 1. Open **Wallets** and sign in with email through Privy. Under **Add wallet**, enter a name and a Solana base58 private key or JSON keypair. The client sends the key directly to Privy through its SDK. rapelaunch persists only the display name and public address for this Privy account in the browser. Names are local to that browser profile.

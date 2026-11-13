@@ -11,11 +11,11 @@ import {sameOrigin,readJsonBody} from '../server/request-policy.mjs';
 // @ts-expect-error Vercel entry point is plain JavaScript.
 import handler from '../api/index.mjs';
 
-test('API cold start works in native Node without TypeScript loading',()=>{
+test('API cold start works without TypeScript loading or experimental require(ESM), matching Vercel Node',()=>{
   const source=`import handler from './api/index.mjs';
     let status,body;await handler({method:'GET',url:'/api?__api=health',query:{__api:'health'},headers:{host:'127.0.0.1:5188'}},{writeHead(s){status=s},end(b){body=JSON.parse(b)}});
     if(status!==200||body.version!=='1.0.0')throw Error('API health failed');`;
-  const result=spawnSync(process.execPath,['--no-experimental-strip-types','--input-type=module','-e',source],{cwd:new URL('..',import.meta.url),encoding:'utf8'});
+  const result=spawnSync(process.execPath,['--no-experimental-strip-types','--no-experimental-require-module','--input-type=module','-e',source],{cwd:new URL('..',import.meta.url),encoding:'utf8'});
   assert.equal(result.status,0,result.stderr);
 });
 
