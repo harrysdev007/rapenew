@@ -2,6 +2,7 @@ import {PrivyProvider, usePrivy} from '@privy-io/react-auth';
 import {defaultSolanaRpcsPlugin, useExportWallet, useImportWallet, useSignTransaction, useWallets} from '@privy-io/react-auth/solana';
 import {useEffect, useMemo, useState} from 'react';
 import App from './App';
+import {privyAppId} from '../shared/app-config.mjs';
 import {api} from './lib/api';
 import type {WalletSigner} from './lib/wallet-signatures';
 
@@ -22,7 +23,7 @@ export type PrivyWallets = {
   exportKey: (address: string) => Promise<void>;
 };
 
-const appId = import.meta.env.VITE_PRIVY_APP_ID?.trim();
+const appId = privyAppId(import.meta.env.VITE_PRIVY_APP_ID);
 const plugins = [defaultSolanaRpcsPlugin()];
 
 function loadWalletNames(storageKey: string): Record<string, string> {
@@ -120,7 +121,6 @@ function PrivyLauncher() {
 }
 
 export default function Root() {
-  if (!appId) return <App/>;
   return <PrivyProvider appId={appId} config={{
     plugins,
     appearance: {theme: 'light', accentColor: '#355cfa', walletChainType: 'solana-only'},

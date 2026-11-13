@@ -6,13 +6,14 @@ import {Transaction,PublicKey} from '@solana/web3.js';
 import {createWalletArchiveService, WalletRequestError} from './privy-wallets.mjs';
 import {validateCreatorFeeUpdate} from './creator-fees.mjs';
 import {sameOrigin,readJsonBody as body} from './request-policy.mjs';
+import {privyAppId} from '../shared/app-config.mjs';
 import {descriptionError, limits, socialUrlError, tickerError, tokenNameError} from '../shared/form-rules.mjs';
 
 const root=resolve(dirname(fileURLToPath(import.meta.url)),'..');
 try{for(const line of (await readFile(resolve(root,'.env'),'utf8')).replace(/^\uFEFF/,'').split(/\r?\n/)){const match=line.match(/^([A-Z_][A-Z0-9_]*)=(.*)$/);if(match&&!process.env[match[1]])process.env[match[1]]=match[2].trim().replace(/^(["'])(.*)\1$/,'$2');}}catch{}
 const rpc=process.env.SOLANA_RPC_URL||'https://api.mainnet-beta.solana.com';
 const jito='https://mainnet.block-engine.jito.wtf/api/v1/bundles';
-const walletArchive=createWalletArchiveService(process.env.VITE_PRIVY_APP_ID, process.env.PRIVY_APP_SECRET);
+const walletArchive=createWalletArchiveService(privyAppId(process.env.VITE_PRIVY_APP_ID||process.env.PRIVY_APP_ID), process.env.PRIVY_APP_SECRET);
 const allowedRpc=new Set(['getAccountInfo','getMultipleAccounts','getBalance','getLatestBlockhash','getMinimumBalanceForRentExemption','getSignatureStatuses','getBlockHeight','getGenesisHash','getTokenSupply','getFeeForMessage','simulateTransaction','getTransaction','getSlot']);
 const program='LanMV9sAd7wArD4vJFi2qDdfnVhFxYSUg6eADduJ3uj';
 const allowedPrograms=new Set([program,'11111111111111111111111111111111','ComputeBudget111111111111111111111111111111','TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA','ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL']);

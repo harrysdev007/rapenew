@@ -38,6 +38,16 @@ test('production API accepts configured HTTPS origins and previews, rejects arbi
   assert.equal(sameOrigin({headers:{host:'127.0.0.1:5188',origin:'http://127.0.0.1:5188'}},{}),true);
 });
 
+test('project domains work without Vercel system variables while other hosts and cross-origin requests stay blocked',()=>{
+  for(const host of ['rapelaunch.xyz','www.rapelaunch.xyz','rapenew.vercel.app']){
+    assert.equal(sameOrigin({headers:{host,origin:`https://${host}`}},{}),true);
+  }
+  for(const host of ['rapenew.vercel.app.evil.example','evil.vercel.app','evil.example']){
+    assert.equal(sameOrigin({headers:{host,origin:`https://${host}`}},{}),false);
+  }
+  assert.equal(sameOrigin({headers:{host:'rapelaunch.xyz',origin:'https://rapenew.vercel.app'}},{}),false);
+});
+
 test('JSON body limits work for native streams and Vercel-parsed objects, strings and buffers',async()=>{
   const value={method:'getGenesisHash',params:[]},json=JSON.stringify(value);
   for(const req of [Readable.from([Buffer.from(json)]),{body:value},{body:json},{body:Buffer.from(json)}])assert.deepEqual(await readJsonBody(req,100),value);

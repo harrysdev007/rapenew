@@ -1,3 +1,5 @@
+import {PROJECT_ORIGINS} from '../shared/app-config.mjs';
+
 export function sameOrigin(req,env=process.env){
   const host=req.headers.host;
   if(typeof host!=='string')return false;
@@ -5,7 +7,7 @@ export function sameOrigin(req,env=process.env){
   let origin;
   if(local)origin=`http://${host}`;
   else{
-    const configured=[env.APP_ORIGIN,...[env.VERCEL_URL,env.VERCEL_PROJECT_PRODUCTION_URL].filter(Boolean).map(host=>`https://${host}`)].filter(Boolean);
+    const configured=[...PROJECT_ORIGINS,env.APP_ORIGIN,...[env.VERCEL_URL,env.VERCEL_PROJECT_PRODUCTION_URL].filter(Boolean).map(host=>`https://${host}`)].filter(Boolean);
     const allowed=new Set(configured.flatMap(value=>{try{const url=new URL(value);return url.protocol==='https:'?[url.origin]:[];}catch{return [];}}));
     origin=`https://${host}`;
     if(!allowed.has(origin))return false;
