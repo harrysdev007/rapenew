@@ -1,0 +1,15 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": "vite",
+  "installCommand": "npm ci",
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist",
+  "functions": {"api/index.mjs": {"maxDuration": 60}},
+  "rewrites": [
+    {"source": "/api/:endpoint", "destination": "/api?__api=:endpoint"},
+    {"source": "/launch", "destination": "/index.html"},
+    {"source": "/wallets", "destination": "/index.html"},
+    {"source": "/activity", "destination": "/index.html"},
+    {"source": "/docs", "destination": "/index.html"}
+  ]
+}
