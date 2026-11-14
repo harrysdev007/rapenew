@@ -31,7 +31,7 @@ export default function Docs({config,loading}:{config:Config|null;loading:boolea
     <article className="docs-content">
       <section id="getting-started">
         <h2>Getting started</h2>
-        <p>rapelaunch creates Solana mainnet tokens on Raydium LaunchLab. Creation, the developer allocation and optional purchases are submitted together through Jito.</p>
+        <p>rayxento creates Solana mainnet tokens on Raydium LaunchLab. Creation, the developer allocation and optional purchases are submitted together through Jito.</p>
         <ol className="docs-steps">
           <li><strong>Add wallets.</strong> Sign in with email in Wallets. Import each Solana wallet with its private key and give it a name.</li>
           <li><strong>Enter token details.</strong> Add a name and ticker, then optional artwork, description, website and X link. Pinata publishes the image and public token metadata to IPFS.</li>
@@ -82,7 +82,7 @@ export default function Docs({config,loading}:{config:Config|null;loading:boolea
         <dl className="docs-states">
           <div><dt>Curve open</dt><dd>Purchases and sales take place on LaunchLab.</dd></div>
           <div><dt>Migration pending</dt><dd>The fundraising target has been reached. Raydium migration is awaiting completion.</dd></div>
-          <div><dt>Migrated</dt><dd>rapelaunch has verified the completed LaunchLab state and a destination Raydium CPMM pool with the correct token pair.</dd></div>
+          <div><dt>Migrated</dt><dd>rayxento has verified the completed LaunchLab state and a destination Raydium CPMM pool with the correct token pair.</dd></div>
         </dl>
         <p>Raydium completes the pool migration after fundraising. Axiom and GMGN maintain their own indexing and labels, which can update at different times.</p>
       </section>
@@ -90,7 +90,7 @@ export default function Docs({config,loading}:{config:Config|null;loading:boolea
       <section id="wallets">
         <h2>Wallets and Privy</h2>
         <p>Privy handles email sign-in, wallet import, export and transaction signing. During import, your private key passes through the browser into the Privy SDK. The import field clears when the operation starts.</p>
-        <p>Wallet names are saved in this browser alongside public addresses. Export key opens the Privy export flow. Earlier encrypted rapelaunch backups can be restored with their original password and imported into Privy.</p>
+        <p>Wallet names are saved in this browser alongside public addresses. Export key opens the Privy export flow. Earlier encrypted rayxento backups can be restored with their original password and imported into Privy.</p>
         <p>Remove archives the wallet in Privy and clears its launch role. Archiving blocks subsequent signing while preserving the on-chain address and its assets. Keep an exported key if you need continued access. <a href="https://docs.privy.io/wallets/wallets/archive-a-wallet" target="_blank" rel="noreferrer">Privy archiving</a></p>
       </section>
 

@@ -1,4 +1,4 @@
-# rapelaunch — Raydium launcher
+# rayxento — Raydium launcher
 
 An independent React + TypeScript app with an English interface, large bold typography and a local Node server. Default address: **http://127.0.0.1:5188/**. The existing Meteora project is separate.
 

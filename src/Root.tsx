@@ -123,7 +123,7 @@ function PrivyLauncher() {
 export default function Root() {
   return <PrivyProvider appId={appId} config={{
     plugins,
-    appearance: {theme: 'light', accentColor: '#355cfa', walletChainType: 'solana-only'},
+    appearance: {theme: 'dark', accentColor: '#5865ff', walletChainType: 'solana-only'},
     loginMethods: ['email'],
     embeddedWallets: {
       solana: {createOnLogin: 'off'},

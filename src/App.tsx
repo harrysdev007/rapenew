@@ -32,9 +32,9 @@ function solError(value:string, optional=false){
   } catch(error) { return message(error); }
 }
 function Brand({onClick}:{onClick:(event:MouseEvent<HTMLAnchorElement>)=>void}){
-  return <a className="brand" href="/launch" onClick={onClick} aria-label="rapelaunch home, create a token">
-    <img src="/rapelaunch-icon.png" alt="" width="30" height="30"/>
-    <span>rapelaunch</span>
+  return <a className="brand" href="/launch" onClick={onClick} aria-label="rayxento home, create a token">
+    <img src="/rayxento-logo.png" alt="" width="30" height="30"/>
+    <span>rayxento</span>
   </a>;
 }
 
@@ -257,7 +257,7 @@ export default function App({privy}: {privy?: PrivyWallets}){
       let value:SealedVault;
       try {value=JSON.parse(await file.text());}
       catch {setBackupError('Choose a valid encrypted backup JSON file.');return;}
-      if(value?.version!==1||typeof value.data!=='string'||typeof value.iv!=='string'||typeof value.salt!=='string'){setBackupError('Choose a rapelaunch encrypted wallet backup.');return;}
+      if(value?.version!==1||typeof value.data!=='string'||typeof value.iv!=='string'||typeof value.salt!=='string'){setBackupError('Choose a rayxento encrypted wallet backup.');return;}
       setLocalWallets([]);
       setLegacyVault(JSON.stringify(value));
       setWalletNotice('Backup loaded. Enter its original password to use the saved wallets.');
@@ -397,7 +397,7 @@ export default function App({privy}: {privy?: PrivyWallets}){
             <h1>{view==='launch'?'Launch a token':view==='docs'?'Documentation':view==='wallets'?<>Your wallets.<br/>Your launch.</>:<>Every launch.<br/>On the record.</>}</h1>
             <p>{view==='launch'
               ? 'Launch on Raydium with developer vesting that unlocks after migration. The dev wallet and up to six additional wallets can buy in one bundle. All initial buys are optional.'
-              : view==='docs'?'How launches, token supply, wallets and migration work on rapelaunch.'
+              : view==='docs'?'How launches, token supply, wallets and migration work on rayxento.'
               : view==='wallets'?'Choose a developer wallet and prepare up to six first-block buyers.':'Follow the bundle, the curve and the real migration state.'}</p>
           </div>
           <div className="protocol-tag"><img src="/raydium-logo.svg" alt="" width="29" height="33"/><span>Raydium LaunchLab</span></div>
@@ -548,7 +548,7 @@ export default function App({privy}: {privy?: PrivyWallets}){
                   event.target.value='';
                 }}/>
               </label>
-              <small id="backup-rules" className="field-hint">Encrypted rapelaunch JSON backup, up to 150 KB.</small>
+              <small id="backup-rules" className="field-hint">Encrypted rayxento JSON backup, up to 150 KB.</small>
               {backupError&&<small id="backup-error" className="field-error" role="alert">{backupError}</small>}
             </details>
           </section>
@@ -581,7 +581,7 @@ export default function App({privy}: {privy?: PrivyWallets}){
           </section>
         </div>}
         {view==='activity'&&<section className="activity-section"><div className="section-heading"><h2>Launch activity</h2><button className="text-button" onClick={()=>void refreshHistory()} disabled={refreshing||history.length===0}>{refreshing?'Refreshing…':'Refresh status'}</button></div>{history.length===0?<div className="empty-state large"><h3>Your first launch starts here.</h3><p>Submitted bundles and on-chain migration checks will appear here.</p><button className="blue-button" onClick={()=>setView('launch')}>Create a token</button></div>:history.map(record=><article className="launch-record" key={record.mint}><div className="record-title"><div><h3>{record.name} <span>${record.symbol}</span></h3><small>{new Date(record.createdAt).toLocaleString()}</small></div><span className={`stage-badge ${record.stage}`}>{stageLabel(record.stage)}</span></div><button className="full-address" onClick={()=>void copy(record.mint)} title="Copy token mint">{record.mint}<span>{copied===record.mint?'Copied':'Copy'}</span></button><p>{record.detail}</p><div className="record-links"><a href={`https://solscan.io/token/${record.mint}`} target="_blank" rel="noreferrer">View token</a>{record.pool&&<a href={`https://solscan.io/account/${record.pool}`} target="_blank" rel="noreferrer">Verified CPMM pool</a>}<a href={`https://solscan.io/tx/${record.signatures[0]}`} target="_blank" rel="noreferrer">Creation transaction</a></div>{record.bundleId&&<small className="bundle-id">Bundle {record.bundleId}</small>}</article>)}</section>}
-        <footer className="page-footer"><span>rapelaunch / Raydium launcher</span><a href="https://x.com/rapelaunch_xyz" target="_blank" rel="noreferrer">X / @rapelaunch_xyz</a></footer>
+        <footer className="page-footer"><span>rayxento / Raydium launcher</span><a href="https://x.com/rapelaunch_xyz" target="_blank" rel="noreferrer">X / @rapelaunch_xyz</a></footer>
       </div>
     </main>
   </div>;
