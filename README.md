@@ -34,7 +34,7 @@ Set these environment variables in Vercel before deploying:
 
 Add the public origin to Privy's allowed origins. Vercel's deployment and production URLs are also accepted by the API; add a preview origin to Privy if testing login there. Never prefix server credentials with `VITE_` or commit `.env`. Changing the public Privy ID requires a rebuild. Production uploads require a verified Privy session. Artwork is limited to 3 MiB so its JSON/base64 request fits Vercel's function request limit.
 
-The API explicitly accepts the project's HTTPS hosts `rapelaunch.xyz`, `www.rapelaunch.xyz` and `rapenew.vercel.app` even if Vercel system variables are disabled. Origin checks still require requests to come from the same host. Add each address used for login to Privy's allowed origins separately; allowing `www.rapelaunch.xyz` alone does not allow the other two.
+The API explicitly accepts the project's HTTPS hosts `rayxento.xyz`, `www.rayxento.xyz`, `rapelaunch.xyz`, `www.rapelaunch.xyz` and `rapenew.vercel.app` even if Vercel system variables are disabled. Origin checks still require requests to come from the same host. Add each address used for login to Privy's allowed origins separately; allowing `www.rapelaunch.xyz` alone does not allow the other two.
 
 `rpc-websockets` is pinned to 9.3.8 because 9.3.9 requires the ESM-only `uuid` 14 from CommonJS. Vercel disables experimental `require(ESM)` by default. The API cold-start test runs with that feature disabled, and the pinned release supports this runtime without extra `NODE_OPTIONS` settings.
 

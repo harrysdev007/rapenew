@@ -39,10 +39,10 @@ test('production API accepts configured HTTPS origins and previews, rejects arbi
 });
 
 test('project domains work without Vercel system variables while other hosts and cross-origin requests stay blocked',()=>{
-  for(const host of ['rapelaunch.xyz','www.rapelaunch.xyz','rapenew.vercel.app']){
+  for(const host of ['rayxento.xyz','www.rayxento.xyz','rapelaunch.xyz','www.rapelaunch.xyz','rapenew.vercel.app']){
     assert.equal(sameOrigin({headers:{host,origin:`https://${host}`}},{}),true);
   }
-  for(const host of ['rapenew.vercel.app.evil.example','evil.vercel.app','evil.example']){
+  for(const host of ['rayxento.xyz.evil.example','www.rayxento.xyz.evil.example','rapenew.vercel.app.evil.example','evil.vercel.app','evil.example']){
     assert.equal(sameOrigin({headers:{host,origin:`https://${host}`}},{}),false);
   }
   assert.equal(sameOrigin({headers:{host:'rapelaunch.xyz',origin:'https://rapenew.vercel.app'}},{}),false);
