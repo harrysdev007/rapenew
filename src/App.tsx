@@ -363,9 +363,9 @@ export default function App({privy}: {privy?: PrivyWallets}){
     <aside className="sidebar">
       <div className="brand-links">
         <Brand onClick={event=>followTab(event,'launch')}/>
-        <a className="brand-social" href="https://x.com/rapelaunch_xyz" target="_blank" rel="noreferrer" aria-label="rapelaunch on X" title="@rapelaunch_xyz">
+        <a className="brand-social" href="https://x.com/rayxento" target="_blank" rel="noreferrer" aria-label="rayxento on X" title="@rayxento">
           <img src="/x-logo.svg" alt="" width="14" height="14"/>
-          <span>@rapelaunch_xyz</span>
+          <span>@rayxento</span>
         </a>
       </div>
       <nav aria-label="Main navigation">
@@ -581,7 +581,7 @@ export default function App({privy}: {privy?: PrivyWallets}){
           </section>
         </div>}
         {view==='activity'&&<section className="activity-section"><div className="section-heading"><h2>Launch activity</h2><button className="text-button" onClick={()=>void refreshHistory()} disabled={refreshing||history.length===0}>{refreshing?'Refreshing…':'Refresh status'}</button></div>{history.length===0?<div className="empty-state large"><h3>Your first launch starts here.</h3><p>Submitted bundles and on-chain migration checks will appear here.</p><button className="blue-button" onClick={()=>setView('launch')}>Create a token</button></div>:history.map(record=><article className="launch-record" key={record.mint}><div className="record-title"><div><h3>{record.name} <span>${record.symbol}</span></h3><small>{new Date(record.createdAt).toLocaleString()}</small></div><span className={`stage-badge ${record.stage}`}>{stageLabel(record.stage)}</span></div><button className="full-address" onClick={()=>void copy(record.mint)} title="Copy token mint">{record.mint}<span>{copied===record.mint?'Copied':'Copy'}</span></button><p>{record.detail}</p><div className="record-links"><a href={`https://solscan.io/token/${record.mint}`} target="_blank" rel="noreferrer">View token</a>{record.pool&&<a href={`https://solscan.io/account/${record.pool}`} target="_blank" rel="noreferrer">Verified CPMM pool</a>}<a href={`https://solscan.io/tx/${record.signatures[0]}`} target="_blank" rel="noreferrer">Creation transaction</a></div>{record.bundleId&&<small className="bundle-id">Bundle {record.bundleId}</small>}</article>)}</section>}
-        <footer className="page-footer"><span>rayxento / Raydium launcher</span><a href="https://x.com/rapelaunch_xyz" target="_blank" rel="noreferrer">X / @rapelaunch_xyz</a></footer>
+        <footer className="page-footer"><span>rayxento / Raydium launcher</span><a href="https://x.com/rayxento" target="_blank" rel="noreferrer">X / @rayxento</a></footer>
       </div>
     </main>
   </div>;
