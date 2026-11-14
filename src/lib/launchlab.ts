@@ -14,9 +14,10 @@ export const CPMM_CREATOR_FEE_RATE=5000n;
 export const CPMM_PROTOCOL_SHARE=50000n;
 const META=new PublicKey('metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s');
 export const SUPPLY=1_000_000_000_000_000n;
-// At 80 USD/SOL and a 24 SOL target, these allocations price the curve near $3.8K to $12K FDV.
-export const SOLD=284_300_000_000_000n;
-export const VESTED=555_700_000_000_000n;
+// No developer allocation. At SOL near $75, 73 SOL prices the curve near $5K to $15K.
+export const LAUNCH_TARGET=73_000_000_000n;
+export const SOLD=633_974_596_215_561n;
+export const VESTED=0n;
 export const POOL_SUPPLY=SUPPLY-SOLD-VESTED;
 export const DENOMINATOR=1_000_000n;
 export const JITO_TIP=1_000_000n;
@@ -103,6 +104,9 @@ export async function readConfig(connection:Connection,developer?:PublicKey):Pro
   verifyDeveloperPlatform(data,owner);
   const postMigrationFeeRate=verifyDestinationFees(cp.data,share?.owner.equals(CPMM)&&share.data.length?share.data:null,owner);
   const config=decodeConfig(c.data,data);
+  if(config.minimum>LAUNCH_TARGET)throw Error('Raydium now requires more than the configured 73 SOL target.');
+  config.minimum=LAUNCH_TARGET;
+  config.fingerprint+=':73-sol-no-dev-reserve';
   config.platform=platform;config.developer=developer;config.createsPlatform=!p;config.updatesPlatform=updatesPlatform;config.postMigrationFeeRate=postMigrationFeeRate;
   config.fingerprint+=(p?.data.toString('hex')||'new')+cp.data.toString('hex')+(share?.data.toString('hex')||'');
   initialReserves(config.minimum,config.migrateFee);
@@ -197,7 +201,7 @@ export async function buildBundle(input:{connection:Connection;dev:PublicKey;min
     const index=purchases.indexOf(quote);
     return index<0?[]:buyInstructions(dev,mint,quote,!!quoteAccounts[index],platform);
   });
-  const creation=[...(config.createsPlatform?[createDeveloperPlatformInstruction(dev)]:[]),createInstruction(dev,mint,name,symbol,uri,threshold,platform),allocateVestingInstruction(dev,mint)];
+  const creation=[...(config.createsPlatform?[createDeveloperPlatformInstruction(dev)]:[]),createInstruction(dev,mint,name,symbol,uri,threshold,platform),...(VESTED>0n?[allocateVestingInstruction(dev,mint)]:[])];
   const first=makeTransaction(dev,blockhash.blockhash,creation);
   if(transactionSize(first)>1232)throw Error('Metadata is too long for token creation. Use a shorter metadata link.');
   const combined=makeTransaction(dev,blockhash.blockhash,[...creation,...groups[0]]);

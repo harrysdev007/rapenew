@@ -7,6 +7,15 @@ import {CONFIG,PLATFORM,WSOL,CPMM,PROGRAM,SOLD,VESTED,POOL_SUPPLY,vestingAddress
 const keys=Array.from({length:10},()=>Keypair.generate());
 const config:Config={minimum:24_000_000_000n,feeRate:10500n,migrateFee:0n,cpmmConfig:keys[8].publicKey,lockedPercent:100,burnPercent:0,fingerprint:'fixture'};
 const buyers=(n:number)=>keys.slice(0,n).map((k,i)=>({address:k.publicKey.toBase58(),budget:n===1?parseSol('24.26'):i===n-1?parseSol('24.26')-parseSol('3')*BigInt(n-1):parseSol('3'),label:`Buyer ${i}`}));
+test('73 SOL launch completes through purchases with zero developer reserve and a threefold FDV curve',()=>{
+  const current={...config,minimum:73_000_000_000n,feeRate:7500n};
+  assert.equal(grossFunding(current.minimum,current.feeRate),73_551_637_280n);
+  const [quote]=quoteBuyers([{address:keys[0].publicKey.toBase58(),budget:grossFunding(current.minimum,current.feeRate)+100n,label:'Buyer'}],current.minimum,current);
+  assert.equal(quote.completes,true);assert.equal(quote.tokens,SOLD);
+  assert.ok(quote.net>=current.minimum-10n);assert.ok(quote.net<=current.minimum+10n);
+  assert.equal(VESTED,0n);assert.equal(SOLD+POOL_SUPPLY,1_000_000_000_000_000n);
+  assert.ok(Math.abs(Number(migrationFdv(current))/Number(openingFdv(current))-3)<0.000001);
+});
 test('SOL input uses exact lamports, rejects precision loss and exponent notation',()=>{assert.equal(parseSol('24.254674078'),24254674078n);assert.equal(formatSol(parseSol('0.000000001')),'0.000000001');for(const value of ['-1','1e2','0.0000000001','NaN','Infinity'])assert.throws(()=>parseSol(value));});
 test('24 SOL net at 1.05% requires 24.254674078 SOL gross',()=>{assert.equal(grossFunding(config.minimum,config.feeRate),24_254_674_078n);assert.throws(()=>grossFunding(1n,1_000_000n));});
 test('decodes an account captured from the real mainnet program simulation',()=>{
@@ -38,22 +47,19 @@ test('a zero-budget developer creates the token without a buy while other wallet
   assert.equal(plan.quotes[1].gross,parseSol('1'));
   assert.equal(plan.quotes[1].completes,false);
   assert.equal(plan.transactions.length,2);
-  assert.equal(plan.transactions[0].instructions.filter(ix=>ix.programId.equals(PROGRAM)).length,2);
+  assert.equal(plan.transactions[0].instructions.filter(ix=>ix.programId.equals(PROGRAM)).length,1);
   assert.equal(plan.transactions[1].instructions.filter(ix=>ix.programId.equals(PROGRAM)).length,1);
   const initialize=plan.transactions[0].instructions.find(ix=>ix.programId.equals(PROGRAM))!;
   const curve=initialize.data.subarray(-51);
   assert.equal(curve.readBigUInt64LE(9),SOLD);
   assert.equal(curve.readBigUInt64LE(17),24_000_000_000n);
-  assert.equal(curve.readBigUInt64LE(26),VESTED);
-  assert.equal(curve.readBigUInt64LE(34),0n);
-  assert.equal(curve.readBigUInt64LE(42),0n);
-  const allocation=plan.transactions[0].instructions.filter(ix=>ix.programId.equals(PROGRAM))[1];
-  assert.equal(allocation.data.readBigUInt64LE(8),VESTED);
-  assert.equal(allocation.keys[1].pubkey.toBase58(),developer.address);
-  assert.equal(allocation.keys[3].pubkey.toBase58(),vestingAddress(new PublicKey(plan.pool),keys[0].publicKey).toBase58());
-  assert.equal(POOL_SUPPLY,160_000_000_000_000n);
-  assert.ok(openingFdv(config)>47_400_000_000n&&openingFdv(config)<47_600_000_000n);
-  assert.equal(migrationFdv(config),150_000_000_000n);
+  assert.equal(curve.readBigUInt64LE(26),0n); // serialized vesting total is zero
+  assert.equal(VESTED,0n);
+  assert.equal(POOL_SUPPLY,366_025_403_784_439n);
+  assert.equal(plan.transactions.flatMap(tx=>tx.instructions).filter(ix=>ix.programId.equals(PROGRAM)&&ix.data.subarray(0,8).equals(Buffer.from([129,178,2,13,217,172,230,218]))).length,0);
+  const liveTarget={...config,minimum:73_000_000_000n};
+  assert.ok(Number(migrationFdv(liveTarget))/Number(openingFdv(liveTarget))>2.99999);
+  assert.ok(Number(migrationFdv(liveTarget))/Number(openingFdv(liveTarget))<3.00001);
 });
 test('dev + six buyers fit one <=5 transaction bundle with and without existing WSOL accounts',async()=>{
   for(const existing of [false,true]){

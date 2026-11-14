@@ -1,13 +1,13 @@
 // Read-only: simulation disables signature verification and never broadcasts.
 import {readFile,mkdir,writeFile} from 'node:fs/promises';
 import {Connection,Keypair,PublicKey} from '@solana/web3.js';
-import {CONFIG,SOLD,VESTED,buildBundle,readConfig,decodePool,decodeVesting,verifyDeveloperPlatform,grossFunding,parseSol,formatSol,transactionSize} from '../src/lib/launchlab.ts';
+import {CONFIG,SOLD,VESTED,buildBundle,readConfig,decodePool,decodeVesting,verifyDeveloperPlatform,grossFunding,parseSol,formatSol,transactionSize,initialReserves} from '../src/lib/launchlab.ts';
 const env=Object.fromEntries((await readFile(new URL('../.env',import.meta.url),'utf8')).split(/\r?\n/).flatMap(line=>{const m=line.trim().match(/^([A-Z_]+)=(.*)$/);return m?[[m[1],m[2].replace(/^["']|["']$/g,'')]]:[];}));
 const connection=new Connection(env.SOLANA_RPC_URL||'https://api.mainnet-beta.solana.com','confirmed');
 if(await connection.getGenesisHash()!=='5eykt4UsFv8P8NJdTREpY1vzqKqZKvdpKuc147dw2N9d')throw Error('Expected mainnet.');
 const account=await connection.getAccountInfo(CONFIG);
 const candidates=[211,115,147,179].map(offset=>new PublicKey(account.data.subarray(offset,offset+32)));
-let payer;for(const candidate of candidates){if(await connection.getBalance(candidate)>30e9){payer=candidate;break;}}
+let payer;for(const candidate of candidates){if(await connection.getBalance(candidate)>80e9){payer=candidate;break;}}
 if(!payer)throw Error('No public funded simulation payer available. No transaction was sent.');
 const config=await readConfig(connection,payer);
 const results=[];
@@ -26,9 +26,11 @@ for(const {name,devBudget,extraBuyers,expectedStatus} of [
   const result=await response.json(),value=result.result?.value;
   if(!value||value.err)throw Error(`Simulation failed: ${JSON.stringify(value?.err||result.error?.code)} ${value?.logs?.slice(-4).join(' ')||''}`);
   const data=Buffer.from(value.accounts[0].data[0],'base64'),state=decodePool(data,mint.publicKey,config.platform);
+  if(!plan.creationIncludesDevBuy){const local=initialReserves(config.minimum,config.migrateFee);if(data.readBigUInt64LE(37)!==local.a||data.readBigUInt64LE(45)!==local.b)throw Error('On-chain starting reserves differ from the FDV calculation.');}
   verifyDeveloperPlatform(Buffer.from(value.accounts[2].data[0],'base64'),payer);
   const expected=plan.creationIncludesDevBuy?plan.quotes[0]:{tokens:0n,net:0n,completes:false};
-  const vesting=decodeVesting(Buffer.from(value.accounts[1].data[0],'base64'),new PublicKey(plan.pool),payer);
+  const vesting=VESTED>0n?decodeVesting(Buffer.from(value.accounts[1].data[0],'base64'),new PublicKey(plan.pool),payer):{amount:0n,claimed:0n};
+  if(VESTED===0n&&value.accounts[1])throw Error('Unexpected developer vesting account.');
   if(state.status!==(plan.creationIncludesDevBuy?expectedStatus:0)||state.threshold!==config.minimum||state.sold!==expected.tokens||state.reserve!==expected.net||state.creator!==payer.toBase58()||state.totalSell!==SOLD||state.vested!==VESTED||state.allocatedVesting!==VESTED||state.cliffPeriod!==0n||state.unlockPeriod!==0n||vesting.amount!==VESTED||vesting.claimed!==0n)throw Error(`${name}: simulated state differs from the local quote or developer vesting allocation.`);
   results.push({scenario:name,buyers:buyers.length,devBudgetSOL:formatSol(devBudget),simulatedTransactions:1,totalBundleTransactions:plan.transactions.length,creationIncludesDevBuy:plan.creationIncludesDevBuy,bytes:plan.transactions.map(transactionSize),units:value.unitsConsumed,status:state.status,sold:state.sold.toString(),reserveSOL:formatSol(state.reserve),thresholdSOL:formatSol(state.threshold),vested:vesting.amount.toString(),mint:mint.publicKey.toBase58(),creator:payer.toBase58(),poolDataBase64:data.toString('base64')});
 }

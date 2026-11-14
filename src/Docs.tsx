@@ -6,7 +6,7 @@ import {
 
 const sections=[
   {id:'getting-started',label:'Getting started'},
-  {id:'tokenomics',label:'Token supply and dev allocation'},
+  {id:'tokenomics',label:'Token supply — no developer reserve'},
   {id:'market-cap',label:'Market cap'},
   {id:'migration',label:'Migration'},
   {id:'wallets',label:'Wallets and Privy'},
@@ -31,12 +31,12 @@ export default function Docs({config,loading}:{config:Config|null;loading:boolea
     <article className="docs-content">
       <section id="getting-started">
         <h2>Getting started</h2>
-        <p>rayxento creates Solana mainnet tokens on Raydium LaunchLab. Creation, the developer allocation and optional purchases are submitted together through Jito.</p>
+        <p>rayxento creates Solana mainnet tokens on Raydium LaunchLab. Creation and optional purchases are submitted together through Jito.</p>
         <ol className="docs-steps">
           <li><strong>Add wallets.</strong> Sign in with email in Wallets. Import each Solana wallet with its private key and give it a name.</li>
           <li><strong>Enter token details.</strong> Add a name and ticker, then optional artwork, description, website and X link. Pinata publishes the image and public token metadata to IPFS.</li>
           <li><strong>Choose buyers.</strong> Select the developer wallet and up to six additional wallets. Each address has one role. Leave the dev budget blank or enter zero to create without a dev purchase. Every selected additional buyer needs a positive budget.</li>
-          <li><strong>Review and sign.</strong> Review launch checks balances, pricing, fees and the current Raydium configuration. Its simulation covers creation, the vesting allocation and purchases included in the first transaction. Sign and send bundle requests the wallet signatures through Privy and sends the bundle to Jito.</li>
+          <li><strong>Review and sign.</strong> Review launch checks balances, pricing, fees and the current Raydium configuration. Its simulation covers creation and purchases included in the first transaction. Sign and send bundle requests the wallet signatures through Privy and sends the bundle to Jito.</li>
           <li><strong>Follow Activity.</strong> Track confirmation and migration using the saved token address and transaction links.</li>
         </ol>
         <p>When included, the bundle executes in order within one slot. First-block placement and protection from competing traders depend on execution conditions. <a href="https://docs.jito.wtf/lowlatencytxnsend/" target="_blank" rel="noreferrer">Jito bundle mechanics</a></p>
@@ -52,21 +52,16 @@ export default function Docs({config,loading}:{config:Config|null;loading:boolea
             <tbody>
               <tr><th scope="row">Bonding curve purchases</th><td>{tokens(SOLD)}</td><td>{share(SOLD)}</td></tr>
               <tr><th scope="row">Raydium pool at migration</th><td>{tokens(POOL_SUPPLY)}</td><td>{share(POOL_SUPPLY)}</td></tr>
-              <tr><th scope="row">Developer vesting reserve</th><td>{tokens(VESTED)}</td><td>{share(VESTED)}</td></tr>
+              <tr><th scope="row">Developer allocation</th><td>{tokens(VESTED)}</td><td>{share(VESTED)}</td></tr>
             </tbody>
           </table>
         </div>
-        <div className="docs-callout">
-          <h3>How the dev reserve works</h3>
-          <p>The reserve is assigned to the selected developer wallet at creation, including launches with a zero dev buy. After migration, the full reserve becomes claimable through a separate LaunchLab claim transaction. Claiming transfers the reserved tokens to the dev wallet.</p>
-          <p>The developer can then transfer or sell the allocation. Selling into the pool consumes SOL liquidity and lowers the token price. Buyers keep the tokens they purchased in their own wallets.</p>
-        </div>
-        <p>The current schedule unlocks the full reserve after migration. The beneficiary and schedule are set when the token is created. <a href="https://docs.raydium.io/products/launchlab/vesting" target="_blank" rel="noreferrer">LaunchLab vesting details</a></p>
+        <div className="docs-callout"><h3>No free tokens for the developer</h3><p>There is no developer reserve or vesting allocation. Approximately 63.4% of supply is sold on the curve and 36.6% seeds the Raydium pool. The developer receives tokens only by purchasing them, under the same curve pricing as other buyers. Creator trading fees remain unchanged.</p></div>
       </section>
 
       <section id="market-cap">
         <h2>Market cap</h2>
-        <p>The displayed market cap uses the current token price multiplied by the full minted supply, including the developer reserve. This valuation is also called FDV.</p>
+        <p>The displayed market cap uses the current token price multiplied by the full 1 billion supply. This valuation is also called FDV. With SOL near $75, the current curve starts near $5K and reaches about $15K at migration. USD values move with SOL/USD; they are estimates, not fixed price guarantees. There is no developer reserve.</p>
         <p>The curve controls how price rises as purchases collect SOL. At an illustrative <strong>$80 per SOL</strong>, the current configuration gives these opening and completion values.</p>
         <dl className="docs-figures">
           <div><dt>Starting market cap</dt><dd>{config?dollars.format(Number(openingFdv(config))/1e9*80):'—'}</dd></div>
@@ -78,7 +73,7 @@ export default function Docs({config,loading}:{config:Config|null;loading:boolea
 
       <section id="migration">
         <h2>Migration</h2>
-        <p>The curve completes when it has collected <strong>{target} after trading fees</strong>. This can be funded over time by buyers. The launcher reads the minimum from Raydium before preparing a launch.</p>
+        <p>The curve completes when it has collected <strong>{target} after trading fees</strong>. This can be funded over time by buyers. New launches target 73 SOL net raised. The launcher verifies that this target still satisfies Raydium’s live minimum.</p>
         <dl className="docs-states">
           <div><dt>Curve open</dt><dd>Purchases and sales take place on LaunchLab.</dd></div>
           <div><dt>Migration pending</dt><dd>The fundraising target has been reached. Raydium migration is awaiting completion.</dd></div>

@@ -83,7 +83,7 @@ function LaunchParameters({config,loading}:{config:Config|null;loading:boolean})
     <div>
       <dt>Migration market cap</dt>
       <dd>{migrationCap}</dd>
-      <dd className="parameter-detail">{!config?unavailable:solUsd?`Estimated at ${formatSol(config.minimum)} SOL net raised`:quoteStatus}</dd>
+      <dd className="parameter-detail">{!config?unavailable:solUsd?'Estimated at migration':quoteStatus}</dd>
     </div>
     <div className="parameter-fees">
       <dt>Trading fees</dt>
@@ -396,7 +396,7 @@ export default function App({privy}: {privy?: PrivyWallets}){
           <div>
             <h1>{view==='launch'?'Launch a token':view==='docs'?'Documentation':view==='wallets'?<>Your wallets.<br/>Your launch.</>:<>Every launch.<br/>On the record.</>}</h1>
             <p>{view==='launch'
-              ? 'Launch on Raydium with developer vesting that unlocks after migration. The dev wallet and up to six additional wallets can buy in one bundle. All initial buys are optional.'
+              ? 'Launch on Raydium with no developer token allocation. The dev wallet and up to six additional wallets can buy in one bundle. All initial buys are optional.'
               : view==='docs'?'How launches, token supply, wallets and migration work on rayxento.'
               : view==='wallets'?'Choose a developer wallet and prepare up to six first-block buyers.':'Follow the bundle, the curve and the real migration state.'}</p>
           </div>

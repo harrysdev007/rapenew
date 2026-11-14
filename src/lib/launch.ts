@@ -29,7 +29,7 @@ export async function prepare(input:{dev:string;name:string;symbol:string;uri:st
     if(balances[buyer.address]<required)throw Error(`${buyer.label} needs ${formatSol(required)} SOL available (purchase budget plus temporary account/setup reserve). Current balance: ${formatSol(balances[buyer.address])} SOL.`);
   }
   const developerQuote=plan.quotes[0];
-  const simulationLabel=(config.createsPlatform?'Creator-fee setup + ':config.updatesPlatform?'Creator-fee update + ':'')+(plan.creationIncludesDevBuy?'creation + vesting + dev buy':'creation + vesting');
+  const simulationLabel=(config.createsPlatform?'Creator-fee setup + ':config.updatesPlatform?'Creator-fee update + ':'')+(plan.creationIncludesDevBuy?'creation + dev buy':'creation');
   input.onProgress(`Simulating ${simulationLabel.toLowerCase()}…`);
   // Standard RPC can simulate the first transaction, not dependent transactions
   // across a whole bundle. Never call this a full bundle simulation.
@@ -38,10 +38,10 @@ export async function prepare(input:{dev:string;name:string;symbol:string;uri:st
   const value=simulation.result?.value;
   if(!value||value.err)throw Error(`Creation simulation failed: ${JSON.stringify(value?.err||'RPC unavailable')}. ${value?.logs?.filter(s=>/Error|failed|insufficient/i.test(s)).slice(-2).join(' ')||''}`);
   const account=value.accounts?.[0],vestingAccount=value.accounts?.[1],platformAccount=value.accounts?.[2];
-  if(!account||account.owner!==PROGRAM.toBase58()||!vestingAccount||vestingAccount.owner!==PROGRAM.toBase58()||!platformAccount||platformAccount.owner!==PROGRAM.toBase58())throw Error('Simulation did not return the launch, vesting and developer fee accounts.');
+  if(!account||account.owner!==PROGRAM.toBase58()||(VESTED>0n&&(!vestingAccount||vestingAccount.owner!==PROGRAM.toBase58()))||(VESTED===0n&&vestingAccount)||!platformAccount||platformAccount.owner!==PROGRAM.toBase58())throw Error('Simulation did not return the required launch and developer fee accounts.');
   verifyDeveloperPlatform(Buffer.from(platformAccount.data[0],'base64'),new PublicKey(input.dev));
   const pool=decodePool(Buffer.from(account.data[0],'base64'),mint.publicKey,config.platform);
-  const vesting=decodeVesting(Buffer.from(vestingAccount.data[0],'base64'),new PublicKey(plan.pool),new PublicKey(input.dev));
+  const vesting=VESTED>0n&&vestingAccount?decodeVesting(Buffer.from(vestingAccount.data[0],'base64'),new PublicKey(plan.pool),new PublicKey(input.dev)):{amount:0n,claimed:0n};
   const expected=plan.creationIncludesDevBuy?developerQuote:{tokens:0n,net:0n,completes:false};
   if(pool.sold!==expected.tokens||pool.reserve!==expected.net||pool.threshold!==threshold||pool.status!==(expected.completes?1:0)||pool.totalSell!==SOLD||pool.vested!==VESTED||pool.allocatedVesting!==VESTED||pool.cliffPeriod!==0n||pool.unlockPeriod!==0n||vesting.amount!==VESTED||vesting.claimed!==0n)throw Error('Simulated pool or vesting differs from the reviewed launch. Signing is disabled.');
   const remaining=plan.quotes.slice(plan.creationIncludesDevBuy?1:0).some(quote=>quote.tokens>0n)?' The RPC simulated the first transaction. Additional purchases are checked when the bundle executes.':'';
